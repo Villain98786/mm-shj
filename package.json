@@ -1,0 +1,31 @@
+const express = require('express');
+const { WebSocketServer } = require('ws');
+const app = express();
+
+// Render automatically PORT provide karta hai, isliye process.env.PORT zaroori hai
+const server = app.listen(process.env.PORT || 8080, () => {
+    console.log('🎮 Mini Militia Server ON!');
+});
+
+const wss = new WebSocketServer({ server });
+
+wss.on('connection', (ws) => {
+    console.log('✅ Player Connected!');
+    
+    ws.on('message', (data) => {
+        // Saare connected players ko data bhejne ke liye
+        wss.clients.forEach((client) => {
+            // Check karein ki connection open hai (1 matlab OPEN)
+            if (client.readyState === 1) { 
+                client.send(data);
+            }
+        });
+    });
+
+    ws.on('close', () => console.log('❌ Player Left'));
+});
+
+// Browser mein check karne ke liye simple message
+app.get('/', (req, res) => {
+    res.send('🚀 Mini Militia Server Live and Running!');
+});
