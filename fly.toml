@@ -1,0 +1,8 @@
+app = "mm-shj"
+
+[[services]]
+  internal_port = 41234
+  protocol = "udp"
+
+  [[services.ports]]
+    port = 41234
