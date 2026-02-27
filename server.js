@@ -4,20 +4,19 @@ const server = dgram.createSocket('udp4');
 
 server.on('listening', () => {
     const address = server.address();
-    console.log(`🎮 UDP Server listening on ${address.address}:${address.port}`);
+    console.log(`🎮 UDP Lobby Server running on ${address.address}:${address.port}`);
 });
 
 server.on('message', (msg, rinfo) => {
     console.log(`📩 Packet from ${rinfo.address}:${rinfo.port}`);
-    console.log("Data:", msg);
 
-    // Fake matchmaking response
-    const response = Buffer.from("ROOM_OK");
+    // Fake room response
+    const response = Buffer.from("ROOM_CREATED");
 
     server.send(response, rinfo.port, rinfo.address, (err) => {
         if (err) console.log("Send error:", err);
-        else console.log("✅ Response sent");
+        else console.log("✅ Room response sent");
     });
 });
 
-server.bind(process.env.PORT || 41234);
+server.bind(41234);
