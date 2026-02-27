@@ -1,26 +1,23 @@
-const express = require('express'); 
-const { WebSocketServer } = require('ws'); 
-const app = express();
+const dgram = require('dgram');
 
-const server = app.listen(process.env.PORT || 8080, () => { 
-    console.log('🎮 Mini Militia Server ON!'); 
+const server = dgram.createSocket('udp4');
+
+server.on('listening', () => {
+    const address = server.address();
+    console.log(`🎮 UDP Server listening on ${address.address}:${address.port}`);
 });
 
-const wss = new WebSocketServer({ server });
+server.on('message', (msg, rinfo) => {
+    console.log(`📩 Packet from ${rinfo.address}:${rinfo.port}`);
+    console.log("Data:", msg);
 
-wss.on('connection', (ws) => { 
-    console.log('✅ Player Connected!'); 
-    ws.on('message', (data) => { 
-        wss.clients.forEach((client) => { 
-            // 'WebSocket.OPEN' ki jagah '1' use karein
-            if (client.readyState === 1) { 
-                client.send(data); 
-            } 
-        }); 
-    }); 
-    ws.on('close', () => console.log('❌ Player Left')); 
+    // Fake matchmaking response
+    const response = Buffer.from("ROOM_OK");
+
+    server.send(response, rinfo.port, rinfo.address, (err) => {
+        if (err) console.log("Send error:", err);
+        else console.log("✅ Response sent");
+    });
 });
 
-app.get('/', (req, res) => { 
-    res.send('🚀 Mini Militia Server Live!'); 
-});
+server.bind(process.env.PORT || 41234);
